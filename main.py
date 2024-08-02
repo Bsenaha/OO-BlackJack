@@ -3,6 +3,12 @@ from pygame.locals import *
 import deck_init
 import hand_select
 import calculate
+import time
+
+
+def pause():
+    time.sleep(80)
+
 
 # initialize
 pygame.init()
@@ -10,9 +16,6 @@ pygame.init()
 # Create Screen & title
 screen = pygame.display.set_mode((300, 500))
 pygame.display.set_caption("BlackJack")
-
-image = pygame.image.load("game_images/cards/clubs/card_clubs_02.png")
-position = (0, 0)
 
 # GAME LOOP
 gameOn = True
@@ -38,7 +41,6 @@ while gameOn:
     player_hand, dealer_hand = hand_select.run(deck)
     # calculate
     player_val, bust = calculate.run(player_hand)
-
     # Player BJ Checks & potential cash-out
 
     # insurance case
@@ -68,6 +70,5 @@ while gameOn:
     # Final cash-out
 
 
-    screen.blit(image, position)
-
     pygame.display.flip()
+

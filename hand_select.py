@@ -5,29 +5,31 @@
 # output:
 # player hand = list of Cards in player starting hand
 # dealer hand = list of Cards in dealer starting hand
+# deck =
 
 def run(deck):
     import random
+    import draw_card
+
+    # initiate hands
+    player_hand = []
+    dealer_hand = []
 
     # draw Cards (one after another) for initial hand
-    # add drawing animation to hand position
-    player_card1 = random.choice(deck)
-    deck.remove(player_card1)
+    # Player 1
+    drawn, deck, player_hand = draw_card.run(player_hand, deck)
     # animate card draw
 
-    dealer_card1 = random.choice(deck)
-    deck.remove(dealer_card1)
+    # Dealer 1
+    drawn, deck, dealer_hand = draw_card.run(dealer_hand, deck)
     # animate card draw
 
-    player_card2 = random.choice(deck)
-    deck.remove(player_card2)
+    # Player 2
+    drawn, deck, player_hand = draw_card.run(player_hand, deck)
     # animate card draw
 
-    dealer_card2 = random.choice(deck)
-    deck.remove(dealer_card2)
+    # Dealer 2
+    drawn, deck, dealer_hand = draw_card.run(dealer_hand, deck)
     # animate card draw
-
-    player_hand = [player_card1, player_card2]
-    dealer_hand = [dealer_card1, dealer_card2]
 
     return player_hand, dealer_hand
