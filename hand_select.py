@@ -11,19 +11,19 @@ def run(deck):
 
     # draw Cards (one after another) for initial hand
     # add drawing animation to hand position
-    player_card1 = random.sample(deck, 1)
+    player_card1 = random.choice(deck)
     deck.remove(player_card1)
     # animate card draw
 
-    dealer_card1 = random.sample(deck, 1)
+    dealer_card1 = random.choice(deck)
     deck.remove(dealer_card1)
     # animate card draw
 
-    player_card2 = random.sample(deck, 1)
+    player_card2 = random.choice(deck)
     deck.remove(player_card2)
     # animate card draw
 
-    dealer_card2 = random.sample(deck, 1)
+    dealer_card2 = random.choice(deck)
     deck.remove(dealer_card2)
     # animate card draw
 

@@ -1,7 +1,8 @@
 import pygame
 from pygame.locals import *
 import deck_init
-
+import hand_select
+import calculate
 
 # initialize
 pygame.init()
@@ -34,7 +35,9 @@ while gameOn:
     # ask player bet
 
     # hand select
+    player_hand, dealer_hand = hand_select.run(deck)
     # calculate
+    player_val, bust = calculate.run(player_hand)
 
     # Player BJ Checks & potential cash-out
 

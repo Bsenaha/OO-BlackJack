@@ -57,6 +57,7 @@ def run():
 
         # find according value
         val = card_vals[i]
-        deck.append(Card(suit, card_img, val))
+        card = Card(suit, card_img, val)
+        deck.append(card)
 
     return deck
