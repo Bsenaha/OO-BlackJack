@@ -10,8 +10,7 @@ class Card(pygame.sprite.Sprite):
         # inputs:
 
         super(Card, self).__init__()
-        Card.img = pygame.image.load(f'game_images/cards/{suit}/{img_ID}')
-        Card.val = val
-        self.speed = speed
         self.image = pygame.image.load(f'game_images/cards/{suit}/{img_ID}')
+        self.value = val
+        self.speed = speed
         self.rect = self.image.get_rect()

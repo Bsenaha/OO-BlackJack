@@ -1,9 +1,16 @@
 # Draw Starting Hands (random)
 
-def run(card_img_IDs, card_vals):
+def run(deck):
     import random
 
-    Valid_hand = False
+    player.card1 = random.sample(deck, 1)
+    deck.remove(player_card1)
 
-    while not Valid_hand:
-        hand_player = random.sample(card_img_IDs, 2)
+    dealer_card1 = random.sample(deck, 1)
+    deck.remove(dealer_card1)
+
+    player_card2 = random.sample(deck, 1)
+    deck.remove(player_card2)
+
+    dealer_card2 = random.sample(deck, 1)
+    deck.remove(dealer_card2)
