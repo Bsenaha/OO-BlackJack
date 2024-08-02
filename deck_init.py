@@ -40,9 +40,10 @@ def run():
     # find card attributes and append it to deck
     deck = []
     for i in range(0, len(card_img_IDs[0])):
-        print(i)
+
         # ID the card img
         card_img = card_img_IDs[0][i]
+
         # ID the suit based on position
         suit_ID = i % 52
         if suit_ID < 13:
