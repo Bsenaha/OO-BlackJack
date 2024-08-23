@@ -10,7 +10,7 @@
 # # bust = busted or not busted
 # deck = updated deck (removed drawn Card)
 
-def run(hand, deck):
+def run(hand, deck, turn):
     import draw_card
     import calculate
 
@@ -20,3 +20,5 @@ def run(hand, deck):
 
     # calculate
     hand_value, bust = calculate.run(hand)
+
+    return hand_value, bust, drawn
