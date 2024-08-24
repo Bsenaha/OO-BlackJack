@@ -11,7 +11,7 @@ class Card(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         super(Card, self).__init__()
         self.image = pygame.image.load(f'game_images/cards/{suit}/{img_ID}')
-        self.image = pygame.transform.scale(self.image, (90, 100))
+        self.image = pygame.transform.scale(self.image, (70, 80))
         self.value = val
         self.speed = speed
         self.rect = self.image.get_rect()
