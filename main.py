@@ -7,9 +7,28 @@ import time
 import button
 import hit
 import sys
+import betting
+import disp_balance
 
+
+### define user events
 hit_event = pygame.USEREVENT + 1
 ADD_hit = pygame.event.Event(hit_event)
+stand_event = pygame.USEREVENT + 9
+ADD_stand = pygame.event.Event(stand_event)
+
+# betting
+bet_10 = pygame.USEREVENT + 2
+ADD_10 = pygame.event.Event(bet_10)
+bet_25 = pygame.USEREVENT + 3
+ADD_25 = pygame.event.Event(bet_25)
+bet_100 = pygame.USEREVENT + 4
+ADD_100 = pygame.event.Event(bet_100)
+
+deal = pygame.USEREVENT + 5
+deal_hand = pygame.event.Event(deal)
+
+ADD_bet = [ADD_10, ADD_25, ADD_100, deal_hand]
 
 # initialize
 pygame.init()
@@ -27,34 +46,35 @@ bg_img = pygame.transform.scale(bg_img, screen_size)
 # disp bg image
 screen.blit(bg_img, (0, 0))
 
+# define font
+font = pygame.font.SysFont('Grand9K Pixel', 35)
+color = (255, 255, 255)
+
 # define all necessary positions
 # define initial position of hit card for player
 player_hand_position = [100, 325]
 dealer_hand_position = [100, 30]
 
 # define where hit cards should go
-player_hit_position = [100, 200]
+player_hit_position = [70, 230]
 # dealer_hit_position =
 
 # buttons
 hit_butt_position = [115, 450]
-# stand_butt_position =
+stand_butt_position = [30, 450]
 # dd_butt_position =
 # split_butt_position =
 
-# define button attributes
-width = 80
-height = 100
-color = (255, 255, 255)
-# light shade of the button
-color_light = (170, 170, 170)
-# dark shade of the button
-color_dark = (100, 100, 100)
+# chip positions (includes deal button position]
+chip_positions = [[200, 400], [200, 430], [200, 460], [120, 420]]
+
+# initiate balance
+balance = 20
 
 # GAME LOOP
-
 # define global variable as key for event handler
-key = 'new hand'
+key = 'betting'
+disp_once = True
 gameOn = True
 while gameOn:
     # check game exit
@@ -64,6 +84,47 @@ while gameOn:
                 gameOn = False
         elif event.type == QUIT:
             gameOn = False
+
+        # ask for player bet
+        match key:
+            case 'betting':
+
+                # stores the (x,y) coordinates into
+                # the variable as a tuple
+                mouse = pygame.mouse.get_pos()
+
+                if disp_once:
+                    # display balance
+                    disp_balance.run(screen, balance, font, color)
+                    disp_once = False
+
+                # run betting (ask bet)
+                betting.run(balance, screen, event, mouse, chip_positions, ADD_bet)
+
+                # if each value triggered
+                if event.type == bet_10:
+                    # add to balance
+                    balance += 10
+                    # reset screen with updated bet
+                    screen.blit(bg_img, (0, 0))
+                    disp_balance.run(screen, balance, font, color)
+                    betting.run(balance, screen, event, mouse, chip_positions, ADD_bet)
+                    pygame.display.flip()
+
+                if event.type == bet_25:
+                    balance += 25
+                    # reset screen with updated bet
+                    screen.blit(bg_img, (0, 0))
+                    disp_balance.run(screen, balance, font, color)
+                    betting.run(balance, screen, event, mouse, chip_positions, ADD_bet)
+                    pygame.display.flip()
+
+                if event.type == deal:
+                    # clear buttons and go to new hand
+                    screen.blit(bg_img, (0, 0))
+                    pygame.display.update()
+                    pygame.time.delay(500)
+                    key = 'new hand'
 
         # dealing new hand
         match key:
@@ -91,7 +152,8 @@ while gameOn:
         match key:
             case 'Player Decision':
                 # initialize player option buttons
-                hit_butt = button.Button('hit', screen, hit_butt_position)  # [100,400]
+                hit_butt = button.Button('hit', screen, hit_butt_position)
+                stand_butt = button.Button('stand', screen, stand_butt_position)
 
                 # stores the (x,y) coordinates into
                 # the variable as a tuple
@@ -108,6 +170,9 @@ while gameOn:
                 # IF DD
 
                 # IF STAND
+                stand_butt.run_button(screen, event, mouse, stand_butt_position, ADD_stand)
+                if event.type == stand_event:
+                    print('stand')
 
 
     # check player balance
