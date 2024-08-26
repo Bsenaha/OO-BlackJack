@@ -9,6 +9,8 @@ import hit
 import sys
 import betting
 import disp_balance
+import disp_bet
+import cashout
 
 
 ### define user events
@@ -82,7 +84,12 @@ key = 'betting'
 disp_once = True
 check_player_BJ = True
 check_dealer_BJ = True
+
+# set game cashout conditions
 dealer_bust = False
+player_BJ = False
+win = False
+
 gameOn = True
 while gameOn:
     # check game exit
@@ -101,9 +108,12 @@ while gameOn:
                 # the variable as a tuple
                 mouse = pygame.mouse.get_pos()
 
+                # runs once (reset stuff)
                 if disp_once:
                     # display balance
                     disp_balance.run(screen, balance, font, color)
+                    disp_bet.run(screen, bet, font, color)
+                    win = False
                     disp_once = False
 
                 # run betting (ask bet)
@@ -117,6 +127,7 @@ while gameOn:
                     # reset screen with updated bet
                     screen.blit(bg_img, (0, 0))
                     disp_balance.run(screen, balance, font, color)
+                    disp_bet.run(screen, bet, font, color)
                     betting.run(balance, screen, event, mouse, chip_positions, ADD_bet)
                     pygame.display.flip()
 
@@ -126,6 +137,7 @@ while gameOn:
                     # reset screen with updated bet
                     screen.blit(bg_img, (0, 0))
                     disp_balance.run(screen, balance, font, color)
+                    disp_bet.run(screen, bet, font, color)
                     betting.run(balance, screen, event, mouse, chip_positions, ADD_bet)
                     pygame.display.flip()
 
@@ -134,6 +146,7 @@ while gameOn:
                     screen.blit(bg_img, (0, 0))
                     # display bet
                     disp_balance.run(screen, balance, font, color)
+                    disp_bet.run(screen, bet, font, color)
                     pygame.display.update()
                     pygame.time.delay(500)
                     key = 'new hand'
@@ -240,33 +253,45 @@ while gameOn:
                 # check busts first
                 if player_bust:
                     print('player bust')
+                    pygame.time.delay(500)
+                    balance = cashout.run(balance, bet, player_BJ, win)
+                    pygame.display.update()
                     pygame.time.delay(2000)
                     key = 'betting'
-                    # cashout ( subtract )
 
                 elif dealer_bust:
                     print('dealer bust')
+                    win = True
+                    pygame.time.delay(500)
+                    balance = cashout.run(balance, bet, player_BJ, win)
+                    pygame.display.update()
                     pygame.time.delay(2000)
                     key = 'betting'
-                    # cashout ( add )
 
                 # compare hand values
                 elif player_value > dealer_value:
                     print('player win')
+                    win = True
+                    pygame.time.delay(500)
+                    balance = cashout.run(balance, bet, player_BJ, win)
+                    pygame.display.update()
                     pygame.time.delay(2000)
-                    # cashout ( add )
                     key = 'betting'
 
                 elif dealer_value > player_value:
                     print('dealer win')
+                    pygame.time.delay(500)
+                    balance = cashout.run(balance, bet, player_BJ, win)
+                    pygame.display.update()
                     pygame.time.delay(2000)
-                    # cashout ( subtract )
                     key = 'betting'
 
                 elif dealer_value == player_value:
                     print('push')
+                    pygame.time.delay(500)
+                    balance += bet
+                    pygame.display.update()
                     pygame.time.delay(2000)
-                    # refund bet
                     key = 'betting'
 
                 # clear table, buttons, and go to new hand
@@ -283,6 +308,7 @@ while gameOn:
 
                 # reset player bet
                 bet = 0
+                disp_once = True
 
                 # reset BJ check
                 check_player_BJ = True
