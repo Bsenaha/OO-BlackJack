@@ -46,6 +46,10 @@ bg_img = pygame.transform.scale(bg_img, screen_size)
 # disp bg image
 screen.blit(bg_img, (0, 0))
 
+# load card back
+card_back_img = pygame.image.load('game_images/cards/card_back.png')
+card_back_img = pygame.transform.scale(card_back_img, (70, 80))
+
 # define font
 font = pygame.font.SysFont('Grand9K Pixel', 35)
 color = (255, 255, 255)
@@ -57,7 +61,7 @@ dealer_hand_position = [100, 30]
 
 # define where hit cards should go
 player_hit_position = [70, 230]
-# dealer_hit_position =
+dealer_hit_position = [70, 140]
 
 # buttons
 hit_butt_position = [115, 450]
@@ -68,13 +72,17 @@ stand_butt_position = [30, 450]
 # chip positions (includes deal button position]
 chip_positions = [[200, 400], [200, 430], [200, 460], [120, 420]]
 
-# initiate balance
-balance = 20
+# initiate bet and balance
+balance = 100
+bet = 0
 
 # GAME LOOP
 # define global variable as key for event handler
 key = 'betting'
 disp_once = True
+check_player_BJ = True
+check_dealer_BJ = True
+dealer_bust = False
 gameOn = True
 while gameOn:
     # check game exit
@@ -104,7 +112,8 @@ while gameOn:
                 # if each value triggered
                 if event.type == bet_10:
                     # add to balance
-                    balance += 10
+                    bet += 10
+                    balance -= 10
                     # reset screen with updated bet
                     screen.blit(bg_img, (0, 0))
                     disp_balance.run(screen, balance, font, color)
@@ -112,7 +121,8 @@ while gameOn:
                     pygame.display.flip()
 
                 if event.type == bet_25:
-                    balance += 25
+                    bet += 25
+                    balance -= 25
                     # reset screen with updated bet
                     screen.blit(bg_img, (0, 0))
                     disp_balance.run(screen, balance, font, color)
@@ -122,6 +132,8 @@ while gameOn:
                 if event.type == deal:
                     # clear buttons and go to new hand
                     screen.blit(bg_img, (0, 0))
+                    # display bet
+                    disp_balance.run(screen, balance, font, color)
                     pygame.display.update()
                     pygame.time.delay(500)
                     key = 'new hand'
@@ -141,6 +153,12 @@ while gameOn:
                     pygame.time.delay(500)
 
                     screen.blit(dealer_hand[i].image, dealer_hand_position)
+                    # disp card back for dealer second card
+                    if i == 1:
+                        screen.blit(card_back_img, dealer_hand_position)
+                        dealer_hand_position[0] -= 30
+                        dealer_hand_position[1] -= 20
+
                     pygame.display.update()
                     dealer_hand_position[0] += 30
                     dealer_hand_position[1] += 20
@@ -151,10 +169,18 @@ while gameOn:
         # if player's turn
         match key:
             case 'Player Decision':
+
+                # check blackjack
+                player_value, player_bust = calculate.run(player_hand)
+                if check_player_BJ:
+                    if player_value == 21:
+                        print('player blackjack')
+                        key = 'End Turns'
+                    check_player_BJ = False
+
                 # initialize player option buttons
                 hit_butt = button.Button('hit', screen, hit_butt_position)
                 stand_butt = button.Button('stand', screen, stand_butt_position)
-
                 # stores the (x,y) coordinates into
                 # the variable as a tuple
                 mouse = pygame.mouse.get_pos()
@@ -172,48 +198,98 @@ while gameOn:
                 # IF STAND
                 stand_butt.run_button(screen, event, mouse, stand_butt_position, ADD_stand)
                 if event.type == stand_event:
-                    print('stand')
+                    key = 'Dealer Turn'
+
+                if player_bust:
+                    print('player bust')
+                    pygame.time.delay(2000)
+                    # display player bust, short pause
+                    key = 'End Turns'
 
 
-    # check player balance
+        match key:
+            case 'Dealer Turn':
 
-    # shuffle check
-    # initialize deck
-    # # # if shuffle:
+                # check blackjack
+                dealer_value, dealer_bust = calculate.run(dealer_hand)
+                if check_dealer_BJ:
+                    screen.blit(dealer_hand[1].image, dealer_hand_position)
+                    pygame.display.update()
+                    pygame.time.delay(1000)
+                    if dealer_value == 21:
+                        print('dealer blackjack')
+                        key = 'End Turns'
+                    check_dealer_BJ = False
 
-    # ask player bet
+                if dealer_bust:
+                    key = 'End Turns'
 
-    # hand select
-    # player_hand, dealer_hand = hand_select.run(deck)
-    # calculate
-    # player_val, bust = calculate.run(player_hand)
-    # Player BJ Checks & potential cash-out
 
-    # insurance case
+                if dealer_value < 17:
+                    dealer_value, bust, drawn = hit.run(dealer_hand, deck, 0)
+                    pygame.time.delay(500)
+                    screen.blit(drawn.image, dealer_hit_position)
+                    pygame.display.update()
+                    dealer_hit_position[0] += 40
 
-    # regular dealer BJ Check, potential cash-out
+                else:
+                    key = 'End Turns'
 
-    # ===== Player turn begin =====
-    # if H
+        match key:
+            case 'End Turns':
+                # check busts first
+                if player_bust:
+                    print('player bust')
+                    pygame.time.delay(2000)
+                    key = 'betting'
+                    # cashout ( subtract )
 
-    # if S
-    # if D
-    # if P
+                elif dealer_bust:
+                    print('dealer bust')
+                    pygame.time.delay(2000)
+                    key = 'betting'
+                    # cashout ( add )
 
-    # if busted, cash-out
-    # if hit 21, display, end turn
-    # ===== Player turn end =====
+                # compare hand values
+                elif player_value > dealer_value:
+                    print('player win')
+                    pygame.time.delay(2000)
+                    # cashout ( add )
+                    key = 'betting'
 
-    # ===== Dealer turn begin =====
-    # reveal hand
-    # # # H, S, D, P # # # (depending on < 17)
+                elif dealer_value > player_value:
+                    print('dealer win')
+                    pygame.time.delay(2000)
+                    # cashout ( subtract )
+                    key = 'betting'
 
-    # if 21, cash-out
-    # if bust, cash-out
-    # ===== Dealer turn end =====
+                elif dealer_value == player_value:
+                    print('push')
+                    pygame.time.delay(2000)
+                    # refund bet
+                    key = 'betting'
 
-    # Compare hands
-    # Final cash-out
+                # clear table, buttons, and go to new hand
+                screen.blit(bg_img, (0, 0))
+
+                # re-initialize values
+                # define initial position of hit card for player
+                player_hand_position = [100, 325]
+                dealer_hand_position = [100, 30]
+
+                # define where hit cards should go
+                player_hit_position = [70, 230]
+                dealer_hit_position = [70, 140]
+
+                # reset player bet
+                bet = 0
+
+                # reset BJ check
+                check_player_BJ = True
+                check_dealer_BJ = True
+
+                # reset and dealer bust
+                dealer_bust = False
 
     pygame.display.flip()
 pygame.quit()
