@@ -17,7 +17,7 @@ class Button:
         self.height = 25
 
         # defining a font
-        self.font = pygame.font.SysFont('Grand9K Pixel', 35)
+        self.font = pygame.font.Font('Emulogic-zrEw.ttf', 13)
 
         # rendering text
         self.text = self.font.render(f'{button_name}', True, self.color)

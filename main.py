@@ -13,12 +13,15 @@ import disp_bet
 import cashout
 import animate
 import Card
+import disp_value
 
 ### define user events
 hit_event = pygame.USEREVENT + 1
 ADD_hit = pygame.event.Event(hit_event)
 stand_event = pygame.USEREVENT + 9
 ADD_stand = pygame.event.Event(stand_event)
+DD_event = pygame.USEREVENT + 8
+ADD_DD = pygame.event.Event(DD_event)
 
 # betting
 bet_10 = pygame.USEREVENT + 2
@@ -51,11 +54,11 @@ screen.blit(bg_img, (0, 0))
 
 # load card back
 card_back = Card.Card('card back', 'card_back.png', 0)
-deal_speed = 2000
+deal_speed = 1500
 small_delay = 200
 
 # define font
-font = pygame.font.SysFont('Grand9K Pixel', 30)
+font = pygame.font.Font('Emulogic-zrEw.ttf', 15)
 color = (255, 255, 255)
 
 # define all necessary positions
@@ -67,10 +70,14 @@ dealer_hand_position = [100, 30]
 player_hit_position = [70, 230]
 dealer_hit_position = [70, 140]
 
+# define where to display hand values
+player_value_position = [70, 350]
+dealer_value_position = [70, 55]
+
 # buttons
 hit_butt_position = [115, 430]
 stand_butt_position = [30, 430]
-# dd_butt_position =
+DD_butt_position = [200, 430]
 # split_butt_position =
 
 # chip positions (includes deal button position]
@@ -165,16 +172,16 @@ while gameOn:
 
                 for i in range(0, 2):
 
-                    animate.run(screen, player_hand[i], player_hand_position, deal_speed, bg_img)
+                    animate.run(screen, player_hand[i], player_hand_position, deal_speed)
                     player_hand_position[0] += 30
                     player_hand_position[1] += 20
                     pygame.time.delay(small_delay)
 
                     if i == 0:
-                        animate.run(screen, dealer_hand[i], dealer_hand_position, deal_speed, bg_img)
+                        animate.run(screen, dealer_hand[i], dealer_hand_position, deal_speed)
                     # disp card back for dealer second card
                     if i == 1:
-                        animate.run(screen, card_back, dealer_hand_position, deal_speed, bg_img)
+                        animate.run(screen, card_back, dealer_hand_position, deal_speed)
                         dealer_hand_position[0] -= 30
                         dealer_hand_position[1] -= 20
 
@@ -190,15 +197,22 @@ while gameOn:
 
                 # check blackjack
                 player_value, player_bust = calculate.run(player_hand)
+
+                # runs once to check for BJ
                 if check_player_BJ:
+                    player_value_text = font.render(f'{player_value}', True, color)
+                    screen.blit(player_value_text, player_value_position)
+
                     if player_value == 21:
                         player_BJ = True
                         key = 'End Turns'
                     check_player_BJ = False
 
-                # initialize player option buttons
-                hit_butt = button.Button('hit', screen, hit_butt_position)
-                stand_butt = button.Button('stand', screen, stand_butt_position)
+                # initialize player option buttons and hand value
+                hit_butt = button.Button('Hit', screen, hit_butt_position)
+                stand_butt = button.Button('Stand', screen, stand_butt_position)
+                DD_butt = button.Button('Double Down', screen, DD_butt_position)
+
                 # stores the (x,y) coordinates into
                 # the variable as a tuple
                 mouse = pygame.mouse.get_pos()
@@ -207,11 +221,20 @@ while gameOn:
                 hit_butt.run_button(screen, event, mouse, hit_butt_position, ADD_hit)
                 if event.type == hit_event:
                     hand_value, bust, drawn = hit.run(player_hand, deck, 0)
-                    screen.blit(drawn.image, player_hit_position)
-                    pygame.display.update()
+                    animate.run(screen, drawn, player_hit_position, deal_speed)
                     player_hit_position[0] += 40
+                    player_value, player_bust = calculate.run(player_hand)
+                    disp_value.run(screen, player_value, font, player_value_position, bg_img, color)
 
                 # IF DD
+                DD_butt.run_button(screen, event, mouse, DD_butt_position, ADD_DD)
+                if event.type == DD_event:
+                    hand_value, bust, drawn = hit.run(player_hand, deck, 0)
+                    animate.run(screen, drawn, (110, 230), deal_speed)
+                    player_value, player_bust = calculate.run(player_hand)
+                    disp_value.run(screen, player_value, font, player_value_position, bg_img, color)
+                    pygame.time.delay(400)
+                    key = 'Dealer Turn'
 
                 # IF STAND
                 stand_butt.run_button(screen, event, mouse, stand_butt_position, ADD_stand)
@@ -232,23 +255,31 @@ while gameOn:
 
                 # check blackjack
                 dealer_value, dealer_bust = calculate.run(dealer_hand)
+
                 if check_dealer_BJ:
                     screen.blit(dealer_hand[1].image, dealer_hand_position)
                     pygame.display.update()
+                    pygame.time.delay(small_delay)
+                    dealer_value_text = font.render(f'{dealer_value}', True, color)
+                    screen.blit(dealer_value_text, dealer_value_position)
+                    pygame.display.update()
                     pygame.time.delay(1000)
+
                     if dealer_value == 21:
                         print('dealer blackjack')
                         key = 'End Turns'
                     check_dealer_BJ = False
 
                 if dealer_bust:
+                    print('dealer bust')
                     key = 'End Turns'
 
                 if dealer_value < 17:
                     dealer_value, bust, drawn = hit.run(dealer_hand, deck, 0)
                     pygame.time.delay(500)
-                    screen.blit(drawn.image, dealer_hit_position)
-                    pygame.display.update()
+                    dealer_value, dealer_bust = calculate.run(dealer_hand)
+                    animate.run(screen, drawn, dealer_hit_position, deal_speed)
+                    disp_value.run(screen, dealer_value, font, dealer_value_position, bg_img, color)
                     dealer_hit_position[0] += 40
 
                 else:
@@ -258,6 +289,7 @@ while gameOn:
             case 'End Turns':
                 # check player BJ
                 if player_BJ and not dealer_BJ:
+                    print('player blackjack')
                     pygame.time.delay(500)
                     balance = cashout.run(balance, bet, player_BJ, win)
                     pygame.display.update()
@@ -265,7 +297,8 @@ while gameOn:
                     key = 'betting'
 
                 # if dealer wins
-                elif player_bust or dealer_value > player_value:
+                elif player_bust or dealer_value > player_value and not dealer_bust:
+                    print('dealer wins')
                     pygame.time.delay(500)
                     balance = cashout.run(balance, bet, player_BJ, win)
                     pygame.display.update()
