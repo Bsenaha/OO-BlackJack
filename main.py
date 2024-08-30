@@ -120,48 +120,64 @@ while gameOn:
 
                 # runs once (reset stuff)
                 if disp_once:
-                    # display balance
-                    disp_balance.run(screen, balance, font, color)
-                    disp_bet.run(screen, bet, font, color)
-                    pygame.display.update()
-                    pygame.time.delay(400)
-                    win = False
-                    disp_once = False
+                    # check bankrupt
+                    if balance == 0:
+                        print('you are ded')
+                        # end game options
+
+                    else:
+                        # display balance
+                        disp_balance.run(screen, balance, font, color)
+                        disp_bet.run(screen, bet, font, color)
+                        pygame.display.update()
+                        pygame.time.delay(400)
+                        win = False
+                        disp_once = False
 
                 # run betting (ask bet)
                 betting.run(balance, screen, event, mouse, chip_positions, ADD_bet)
 
                 # if each value triggered
                 if event.type == bet_10:
-                    # add to balance
-                    bet += 10
-                    balance -= 10
-                    # reset screen with updated bet
-                    screen.blit(bg_img, (0, 0))
-                    disp_balance.run(screen, balance, font, color)
-                    disp_bet.run(screen, bet, font, color)
-                    betting.run(balance, screen, event, mouse, chip_positions, ADD_bet)
-                    pygame.display.flip()
+                    if balance < 10:
+                        print('you literally cannot do that')
+                    else:
+                        # add to balance
+                        bet += 10
+                        balance -= 10
+                        # reset screen with updated bet
+                        screen.blit(bg_img, (0, 0))
+                        disp_balance.run(screen, balance, font, color)
+                        disp_bet.run(screen, bet, font, color)
+                        betting.run(balance, screen, event, mouse, chip_positions, ADD_bet)
+                        pygame.display.flip()
 
                 if event.type == bet_25:
-                    bet += 25
-                    balance -= 25
-                    # reset screen with updated bet
-                    screen.blit(bg_img, (0, 0))
-                    disp_balance.run(screen, balance, font, color)
-                    disp_bet.run(screen, bet, font, color)
-                    betting.run(balance, screen, event, mouse, chip_positions, ADD_bet)
-                    pygame.display.flip()
+                    if balance < 25:
+                        print('you literally cannot do that')
+                    else:
+                        bet += 25
+                        balance -= 25
+                        # reset screen with updated bet
+                        screen.blit(bg_img, (0, 0))
+                        disp_balance.run(screen, balance, font, color)
+                        disp_bet.run(screen, bet, font, color)
+                        betting.run(balance, screen, event, mouse, chip_positions, ADD_bet)
+                        pygame.display.flip()
 
                 if event.type == deal:
-                    # clear buttons and go to new hand
-                    screen.blit(bg_img, (0, 0))
-                    # display bet
-                    disp_balance.run(screen, balance, font, color)
-                    disp_bet.run(screen, bet, font, color)
-                    pygame.display.update()
-                    pygame.time.delay(500)
-                    key = 'new hand'
+                    if bet == 0:
+                        print('zero bet')
+                        break
+                    else:
+                        # clear buttons and go to new hand
+                        screen.blit(bg_img, (0, 0))
+                        # display bet
+                        disp_balance.run(screen, balance, font, color)
+                        disp_bet.run(screen, bet, font, color)
+                        pygame.display.update()
+                        pygame.time.delay(500)
+                        key = 'new hand'
 
         # dealing new hand
         match key:
